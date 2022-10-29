@@ -1,0 +1,74 @@
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+    id 'signing'
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'com.chavin.util.image.Main'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withJavadocJar()
+    withSourcesJar()
+}
+
+dependencies {
+    implementation 'org.apache.groovy:groovy:4.0.6'
+    implementation 'net.coobird:thumbnailator:0.4.18'
+    implementation 'org.sejda.imageio:webp-imageio:0.1.6'
+}
+
+publishing {
+    repositories {
+        maven {
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username = project['ossrh.username']
+                password = project['ossrh.password']
+            }
+        }
+    }
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'io.github.chavin-chen'
+            artifactId = 'util-image'
+            version = '1.0.0'
+            from components.java
+            pom {
+                name = 'Image Util'
+                description = 'This is a image compress tool(support *.jpg/*.png/*.webp)'
+                url = 'https://github.com/Chavin-Chen/HttpUtil'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Chavin Chen'
+                        email = 'chavinchen@hotmail.com'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/Chavin-Chen/HttpUtil/tree/master'
+                    connection = 'scm:git:git://github.com/Chavin-Chen/HttpUtil.git'
+                    developerConnection = 'scm:git:ssh://github.com:Chavin-Chen/HttpUtil.git'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
