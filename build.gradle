@@ -46,7 +46,7 @@ publishing {
             pom {
                 name = 'Image Util'
                 description = 'This is a image compress tool(support *.jpg/*.png/*.webp)'
-                url = 'https://github.com/Chavin-Chen/HttpUtil'
+                url = 'https://github.com/Chavin-Chen/ImageUtil'
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
@@ -60,9 +60,9 @@ publishing {
                     }
                 }
                 scm {
-                    url = 'https://github.com/Chavin-Chen/HttpUtil/tree/master'
-                    connection = 'scm:git:git://github.com/Chavin-Chen/HttpUtil.git'
-                    developerConnection = 'scm:git:ssh://github.com:Chavin-Chen/HttpUtil.git'
+                    url = 'https://github.com/Chavin-Chen/ImageUtil/tree/master'
+                    connection = 'scm:git:git://github.com/Chavin-Chen/ImageUtil.git'
+                    developerConnection = 'scm:git:ssh://github.com:Chavin-Chen/ImageUtil.git'
                 }
             }
         }
