@@ -47,12 +47,19 @@ dependencies {
 And then you use it in your project:
 
 ```java
-public class Main2 {
-    public static void main(String[] args) throws IOException {
-        var compressor = new CustomCompressor();
+public class Main {
+    public static void main(String[] args) {
+        ICompressor compressor = createCompressor(false);
         var srcFile = new File("xxx.png");
         var dstFile = new File("xxx-opt.png");
         compressor.compress(srcFile, dstFile, 0.75);
+    }
+
+    private static ICompressor createCompressor(boolean useThumbCompressor) {
+        if (useThumbCompressor) {
+            return new ThumbnailCompressor();
+        }
+        return new CustomCompressor();
     }
 }
 
