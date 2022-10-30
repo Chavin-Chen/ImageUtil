@@ -16,7 +16,7 @@ There are also two ways for you to use this tool:
 
 ## Usage way 1: runnable jar
 
-First you need compile a runnable jar or download one(there is one in project's root dir named `image.jar`),
+First you need compile a runnable jar or download one at the release tab of github,
 and then run it.
 
 ```bash
@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.github.chavin-chen:util-image:1.0.0'
+    implementation 'io.github.chavin-chen:util-image:1.0.1'
 }
 ```
 

@@ -4,7 +4,7 @@ package com.chavin.util.image
  * java -jar image.jar
  */
 class Main {
-    private static final IS_DEBUG = false
+    private static IS_DEBUG = false
     private static String input = ''
     private static List<File> inputFiles = []
     private static String output = ''
@@ -13,6 +13,12 @@ class Main {
     private static def quality = ICompressor.DEF_QUALITY
     private static int engine = 0
     private static def suffix = ''
+    private static def filter = new FilenameFilter() {
+        @Override
+        boolean accept(File dir, String name) {
+            return acceptFile(name)
+        }
+    }
 
     static void main(String[] args) {
         if (null == args || args.length <= 1 || args[1] == '--help' || args[1] == '-h' || args[1] == '?') {
@@ -45,7 +51,7 @@ class Main {
         for (String arg : args) list << arg
         parseArgs list
 
-        if (Double.compare(scale, ICompressor.DEF_SCALE) && Double.compare(quality, ICompressor.DEF_QUALITY)) {
+        if (0 == Double.compare(scale, ICompressor.DEF_SCALE) && 0 == Double.compare(quality, ICompressor.DEF_QUALITY)) {
             println "Need do nothing."
             return 0
         }
@@ -111,7 +117,16 @@ class Main {
             }
             if (arg == '-i') {
                 input = args[++i]
-                ++i
+                // Bash上短参数通配符会在shell层展开
+                int j
+                for (j = i; j < args.size(); j++) {
+                    if (args[j].startsWith('-')) {
+                        if (j == i) ++j
+                        break
+                    }
+                    inputFiles << new File(args[j])
+                }
+                i = j
                 continue
             }
             if (arg.startsWith('--output')) {
@@ -160,6 +175,10 @@ class Main {
             if (arg.startsWith('--suffix')) {
                 suffix = arg.split('=', 2)[1]
                 ++i
+                continue
+            }
+            if (arg == '--debug' || arg == '-d') {
+                IS_DEBUG = true;
             }
             ++i
         }
@@ -169,34 +188,41 @@ class Main {
 
     private static parseInputFile() {
         if (input.contains('*')) { // May be: /* 、/*.* 、/*.png
-            String[] splits = input.split('\\*\\.?', 2)
-            File folder = new File(splits[0])
+            String[] splits = input.split('\\*', 2)
+            debug("parseInputFile(*):${Arrays.toString(splits)}")
+            File folder = new File("${splits[0]}".replace('~', System.getProperty("user.home")))
             if (splits.length > 1) {
                 inputFiles.addAll((File[]) folder.listFiles(new FilenameFilter() {
                     @Override
                     boolean accept(File dir, String name) {
-                        if ('*' == splits[1]) return true
+                        if (splits[1].endsWith('*')) {
+                            return acceptFile(name)
+                        }
                         return name.endsWith(splits[1])
                     }
                 }))
             } else {
-                inputFiles.addAll((File[]) folder.listFiles())
+                inputFiles.addAll((File[]) folder.listFiles(filter))
             }
-        } else {
+        } else if (inputFiles.empty) {
             def file = new File(input)
-            debug("parseInputFile: $file  ${file.exists()}")
+            debug("parseInputFile(n): $file  ${file.exists()}")
             if (file.isFile()) {
                 inputFiles << file
             } else {
-                inputFiles.addAll((File[]) file.listFiles())
+                inputFiles.addAll((File[]) file.listFiles(filter))
             }
         }
     }
 
+    private static boolean acceptFile(String fName) {
+        // 后缀判断，因为webp的头太复杂了，再者ImageIO也需要用，若弄个映射太麻烦。工具么~太重了用起来吃力
+        return fName.endsWith('.png') || fName.endsWith('.webp') || fName.endsWith('.jpg') || fName.endsWith('.jpeg')
+    }
 
     private static getDstFileName(File srcFile) {
         if (suffix.blank) return srcFile.name
-        String splits = srcFile.name.split('\\.')
+        String[] splits = srcFile.name.split('\\.')
         return "${splits[0]}$suffix.${splits[1]}"
     }
 
@@ -222,6 +248,7 @@ About arguments:
                                     thumb engine(short 't') based Google Thumbnails library
     --suffix=_opt                Set the dest file suffix, for example value means
                                     ~/img/1.webp to ~/img2/1_opt.webp. default ''
+    --debug, -d                  Set debug mode for more logs
 ''')
     }
 
